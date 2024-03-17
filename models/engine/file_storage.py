@@ -1,5 +1,5 @@
 #!/usr/bin/python3
-"""Defines the FileStorage class."""
+"""This module defines a class to manage file storage for hbnb clone"""
 import json
 
 
