@@ -1,6 +1,8 @@
 #!/usr/bin/python3
+
 """ New engine DBStorage """
-from sqlalchemy import (create_engine)
+
+from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, scoped_session
 from models.base_model import BaseModel, Base
 from models.user import User
@@ -11,13 +13,11 @@ from models.amenity import Amenity
 from models.review import Review
 import os
 
-
 classes = {
     'BaseModel': BaseModel, 'User': User, 'Place': Place,
     'State': State, 'City': City, 'Amenity': Amenity,
     'Review': Review
 }
-
 
 class DBStorage:
     """ DBStorage Class """
@@ -44,7 +44,7 @@ class DBStorage:
                 for obj in objs:
                     key = obj.__class__.__name__ + '.' + obj.id
                     dict_objs[key] = obj
-        return (dict_objs)
+        return dict_objs
 
     def new(self, obj):
         """ new method """
@@ -63,8 +63,7 @@ class DBStorage:
     def reload(self):
         """ reload method """
         Base.metadata.create_all(self.__engine)
-        session_factory = sessionmaker(bind=self.__engine,
-                                       expire_on_commit=False)
+        session_factory = sessionmaker(bind=self.__engine, expire_on_commit=False)
         Session = scoped_session(session_factory)
         self.__session = Session()
 
