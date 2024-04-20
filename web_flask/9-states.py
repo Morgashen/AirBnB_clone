@@ -1,34 +1,36 @@
 #!/usr/bin/python3
 """
-starts a Flask web application
+This script starts a Flask web application.
 """
 
 from flask import Flask, render_template
-# Assuming 'models' is a module containing 'storage', 'State', and 'City' classes
 from models import storage, State, City
+
 app = Flask(__name__)
 
 @app.route('/states', strict_slashes=False)
-@app.route('/states/<state_id>', strict_slashes=False)
-def states_route(state_id=None):
-    """display the states and cities listed in alphabetical order"""
-    # Assuming 'storage.all' method returns a dictionary of 'State' objects
-    all_states = storage.all(State)
-    states_sorted = sorted(all_states.values(), key=lambda x: x.name)
-    state_selected = None
-    cities_sorted = []
-    if state_id:
-        # Assuming 'storage.get' method to retrieve a 'State' object by its ID
-        state_selected = storage.get(State, 'State.' + state_id)
-        if state_selected:
-            # Sort cities of the state in alphabetical order
-            cities_sorted = sorted(state_selected.cities, key=lambda x: x.name)
-    return render_template('9-states.html', states=states_sorted, state=state_selected, cities=cities_sorted)
+def states_list():
+    """Display a HTML page with a list of all State objects present in DBStorage sorted by name."""
+    states = storage.all(State).values()
+    states_sorted = sorted(states, key=lambda state: state.name)
+    return render_template('7-states_list.html', states=states_sorted)
+
+@app.route('/states/<id>', strict_slashes=False)
+def states_detail(id):
+    """Display a HTML page for a specific State object and its Cities."""
+    state = storage.get(State, id)
+    if state:
+        # If using DBStorage, cities are already loaded through the relationship
+        # If using FileStorage, use the public getter method cities
+        cities_sorted = sorted(state.cities if storage_t == 'db' else state.cities(), key=lambda city: city.name)
+        return render_template('9-states.html', state=state, cities=cities_sorted)
+    else:
+        return render_template('9-states.html', not_found=True)
 
 @app.teardown_appcontext
-def teardown_db(exception):
-    """closes the storage on teardown"""
+def close_session(exception):
+    """Remove the current SQLAlchemy Session."""
     storage.close()
 
-if __name__ == '__main__':
-    app.run(host='0.0.0.0', port='5000')
+if __name__ == "__main__":
+    app.run(host='0.0.0.0', port=5000)

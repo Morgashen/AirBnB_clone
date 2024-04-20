@@ -1,24 +1,24 @@
 #!/usr/bin/python3
 """
-starts a Flask web application
+This script starts a Flask web application.
 """
 
 from flask import Flask, render_template
-# Assuming 'models' is a module containing 'storage' and 'State' classes
-from models import storage, State
+from models import storage
+
 app = Flask(__name__)
 
 @app.route('/states_list', strict_slashes=False)
 def states_list():
-    """display a HTML page with the states listed in alphabetical order"""
-    # Assuming 'storage.all' method returns a dictionary of 'State' objects
-    states = sorted(storage.all(State).values(), key=lambda x: x.name)
-    return render_template('7-states_list.html', states=states)
+    """Display a HTML page with a list of all State objects present in DBStorage sorted by name."""
+    states = storage.all("State").values()
+    states_sorted = sorted(states, key=lambda state: state.name)
+    return render_template('7-states_list.html', states=states_sorted)
 
 @app.teardown_appcontext
-def teardown_db(exception):
-    """closes the storage on teardown"""
+def close_session(exception):
+    """Remove the current SQLAlchemy Session."""
     storage.close()
 
-if __name__ == '__main__':
-    app.run(host='0.0.0.0', port='5000')
+if __name__ == "__main__":
+    app.run(host='0.0.0.0', port=5000)
