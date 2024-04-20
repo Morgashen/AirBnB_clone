@@ -4,17 +4,19 @@ starts a Flask web application
 """
 
 from flask import Flask, render_template
-from models import *
-from models import storage
+# Assuming 'models' is a module containing 'storage', 'State', and 'City' classes
+from models import storage, State, City
 app = Flask(__name__)
-
 
 @app.route('/cities_by_states', strict_slashes=False)
 def cities_by_states():
     """display the states and cities listed in alphabetical order"""
-    states = storage.all("State").values()
+    # Assuming 'storage.all' method returns a dictionary of 'State' objects
+    states = sorted(storage.all(State).values(), key=lambda x: x.name)
+    for state in states:
+        # Assuming each 'State' object has a 'cities' attribute which is a list of 'City' objects
+        state.cities = sorted(state.cities, key=lambda x: x.name)
     return render_template('8-cities_by_states.html', states=states)
-
 
 @app.teardown_appcontext
 def teardown_db(exception):
